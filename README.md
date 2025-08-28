@@ -1,1 +1,304 @@
 # mytools-site
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Free JSON Formatter & Beautifier — Copy, Minify, Validate</title>
+  <meta name="description" content="Format, beautify, minify, and validate JSON online. Free, fast, no signup. Pure client‑side — your data never leaves the browser." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='24' fill='%230b1220'/%3E%3Ctext x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='72' fill='%23bfe1ff'%3E%7B%7D%3C/text%3E%3C/svg%3E" />
+  <meta property="og:title" content="Free JSON Formatter & Beautifier" />
+  <meta property="og:description" content="Format, minify, and validate JSON in your browser. No uploads." />
+  <meta property="og:type" content="website" />
+  <style>
+    :root{
+      --bg: #0b1220;
+      --panel: #0f1a2e;
+      --muted: #93a4c4;
+      --text: #e8eefc;
+      --accent: #7cc4ff;
+      --accent-2: #7fffad;
+      --danger: #ff6b6b;
+      --warn: #ffd166;
+      --ok: #8cffb0;
+      --border: #1f2a44;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    [data-theme="light"]{
+      --bg: #f7f9fc; --panel:#ffffff; --muted:#5a6782; --text:#0c1222; --accent:#0a84ff; --accent-2:#0fa36b; --danger:#d7263d; --warn:#d39e00; --ok:#2ca86f; --border:#e7eaf1; --shadow: 0 10px 24px rgba(0,0,0,.10);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji"; background:var(--bg); color:var(--text)}
+    .wrap{max-width:1200px;margin:0 auto;padding:24px}
+    header{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+    .logo{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--panel);box-shadow:var(--shadow);border:1px solid var(--border)}
+    h1{font-size:clamp(20px,3vw,28px);margin:0}
+    .tag{color:var(--muted);font-size:14px}
+    .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0 18px}
+    button, .btn{
+      appearance:none;border:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(0,0,0,.08));
+      color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:600;box-shadow:var(--shadow);
+      transition:transform .05s ease, filter .2s ease; user-select:none
+    }
+    button:hover{filter:brightness(1.1)}
+    button:active{transform:scale(.98)}
+    .primary{background:linear-gradient(180deg, rgba(124,196,255,.9), rgba(124,196,255,.6));color:#06203b;border-color:transparent}
+    .ok{background:linear-gradient(180deg, rgba(140,255,176,.9), rgba(140,255,176,.6));color:#062b1b;border-color:transparent}
+    .warn{background:linear-gradient(180deg, rgba(255,209,102,.9), rgba(255,209,102,.6));color:#3a2a00;border-color:transparent}
+    .danger{background:linear-gradient(180deg, rgba(255,107,107,.9), rgba(255,107,107,.6));color:#3a0000;border-color:transparent}
+    .ghost{background:var(--panel)}
+    .grow{flex:1}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media (max-width: 980px){.grid{grid-template-columns:1fr}}
+    .panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+    .panel-header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--border);color:var(--muted)}
+    textarea{width:100%;height:420px;background:transparent;border:0;resize:vertical;color:var(--text);padding:14px 16px;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:14px;line-height:1.5}
+    .hint{font-size:12px;color:var(--muted);padding:0 2px}
+    .status{font-size:13px}
+    .status.ok{color:var(--ok)}
+    .status.err{color:var(--danger)}
+    .pill{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--muted);font-size:12px}
+    footer{display:flex;justify-content:space-between;align-items:center;margin-top:18px;color:var(--muted);font-size:13px}
+    .link{color:var(--accent);text-decoration:none;border-bottom:1px dashed transparent}
+    .link:hover{border-bottom-color:var(--accent)}
+    .toast{position:fixed;inset:auto 16px 16px auto;background:var(--panel);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:12px;box-shadow:var(--shadow);opacity:0;transform:translateY(10px);transition:.25s}
+    .toast.show{opacity:1;transform:none}
+    .switch{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+    .switch input{appearance:none;width:42px;height:24px;border-radius:24px;background:var(--panel);border:1px solid var(--border);position:relative;outline:none}
+    .switch input::after{content:"";position:absolute;top:50%;left:3px;transform:translateY(-50%);width:18px;height:18px;border-radius:50%;background:var(--accent);transition:.2s}
+    .switch input:checked::after{left:21px;background:var(--accent-2)}
+    .drop{padding:10px 12px;border-top:1px dashed var(--border);display:flex;justify-content:space-between;align-items:center}
+  </style>
+</head>
+<body>
+  <div class="wrap" id="app">
+    <header>
+      <div class="logo">{}</div>
+      <div>
+        <h1>JSON Formatter & Beautifier</h1>
+        <div class="tag">Free • Fast • Client‑Side • No signup</div>
+      </div>
+      <div class="grow"></div>
+      <label class="switch" title="Toggle light/dark">
+        <span>☀️</span>
+        <input id="themeToggle" type="checkbox" />
+        <span>🌙</span>
+      </label>
+    </header>
+
+    <div class="bar">
+      <button id="btnBeautify" class="primary">Beautify</button>
+      <button id="btnMinify" class="ghost">Minify</button>
+      <button id="btnValidate" class="ok">Validate</button>
+      <button id="btnCopy" class="ghost">Copy Output</button>
+      <button id="btnDownload" class="ghost">Download .json</button>
+      <label class="btn ghost" for="filePick">Upload JSON<input id="filePick" type="file" accept="application/json,.json" hidden></label>
+      <button id="btnPaste" class="ghost">Paste</button>
+      <button id="btnClear" class="danger">Clear</button>
+      <div class="pill" id="sizeHint">0 chars</div>
+    </div>
+
+    <div class="grid">
+      <section class="panel">
+        <div class="panel-header">
+          <strong>Input</strong>
+          <div class="status" id="lintStatus">Idle</div>
+        </div>
+        <textarea id="input" spellcheck="false" placeholder='Paste JSON here or drag & drop a .json file. Example: {"hello":"world","items":[1,2,3]}'></textarea>
+        <div class="drop"><span class="hint">Tip: Drag & drop a .json file onto this box.</span><span class="hint">Auto-saves locally</span></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <strong>Output</strong>
+          <div class="status" id="outputStatus">Ready</div>
+        </div>
+        <textarea id="output" spellcheck="false" placeholder="Formatted / minified JSON will appear here…"></textarea>
+        <div class="drop"><span class="hint">Copy or download your result. No data leaves your device.</span></div>
+      </section>
+    </div>
+
+    <footer>
+      <div>100% client‑side • <a class="link" href="#" id="installPWA">Install app</a></div>
+      <div>Made for you — customize the footer with your brand.</div>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // --- Theme ---
+    const themeToggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('theme');
+    if(savedTheme){
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      themeToggle.checked = savedTheme === 'dark' ? true : false;
+    } else {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+      themeToggle.checked = prefersDark;
+    }
+    themeToggle.addEventListener('change', () => {
+      const mode = themeToggle.checked ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', mode);
+      localStorage.setItem('theme', mode);
+    });
+
+    // --- Elements ---
+    const el = (id)=>document.getElementById(id);
+    const input = el('input');
+    const output = el('output');
+    const lintStatus = el('lintStatus');
+    const outputStatus = el('outputStatus');
+    const sizeHint = el('sizeHint');
+    const toast = el('toast');
+
+    function showToast(msg){
+      toast.textContent = msg; toast.classList.add('show');
+      setTimeout(()=>toast.classList.remove('show'), 1400);
+    }
+
+    // --- Core actions ---
+    function updateSize(){ sizeHint.textContent = (input.value||'').length + ' chars'; }
+
+    function tryParse(text){
+      try { return { ok:true, data: JSON.parse(text) }; }
+      catch(e){ return { ok:false, error:e }; }
+    }
+
+    function beautify(){
+      const res = tryParse(input.value);
+      if(!res.ok){
+        lintStatus.textContent = 'Error: ' + (res.error.message || 'Invalid JSON');
+        lintStatus.className = 'status err';
+        outputStatus.textContent = '—';
+        return showToast('Cannot beautify: invalid JSON');
+      }
+      output.value = JSON.stringify(res.data, null, 2);
+      outputStatus.textContent = 'Beautified';
+      outputStatus.className = 'status ok';
+      showToast('Beautified ✓');
+      persist();
+    }
+
+    function minify(){
+      const res = tryParse(input.value);
+      if(!res.ok){
+        lintStatus.textContent = 'Error: ' + (res.error.message || 'Invalid JSON');
+        lintStatus.className = 'status err';
+        return showToast('Cannot minify: invalid JSON');
+      }
+      output.value = JSON.stringify(res.data);
+      outputStatus.textContent = 'Minified';
+      outputStatus.className = 'status ok';
+      showToast('Minified ✓');
+      persist();
+    }
+
+    function validate(){
+      const res = tryParse(input.value);
+      if(res.ok){
+        lintStatus.textContent = 'Valid JSON';
+        lintStatus.className = 'status ok';
+        outputStatus.textContent = 'Valid input';
+        outputStatus.className = 'status ok';
+        showToast('Valid JSON ✓');
+      } else {
+        lintStatus.textContent = 'Error: ' + (res.error.message || 'Invalid JSON');
+        lintStatus.className = 'status err';
+        outputStatus.textContent = 'Invalid input';
+        outputStatus.className = 'status err';
+        showToast('Invalid JSON');
+      }
+    }
+
+    async function copyOut(){
+      try{
+        await navigator.clipboard.writeText(output.value || '');
+        showToast('Copied to clipboard');
+      }catch{ showToast('Copy failed'); }
+    }
+
+    async function pasteIn(){
+      try{
+        const txt = await navigator.clipboard.readText();
+        input.value = txt; updateSize(); lint(); persist(); showToast('Pasted');
+      }catch{ showToast('Paste blocked by browser'); }
+    }
+
+    function download(){
+      const blob = new Blob([output.value||''], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'formatted.json'; a.click(); URL.revokeObjectURL(a.href);
+      showToast('Downloading…');
+    }
+
+    function clearAll(){ input.value=''; output.value=''; lintStatus.textContent='Idle'; lintStatus.className='status'; outputStatus.textContent='Ready'; outputStatus.className='status'; updateSize(); persist(); }
+
+    // --- Lint on input ---
+    let lintTimer;
+    function lint(){
+      clearTimeout(lintTimer);
+      lintTimer = setTimeout(()=>{
+        if(!input.value.trim()){ lintStatus.textContent='Idle'; lintStatus.className='status'; return; }
+        const res = tryParse(input.value);
+        if(res.ok){ lintStatus.textContent='Looks valid'; lintStatus.className='status ok'; }
+        else { lintStatus.textContent = 'Error: ' + (res.error.message||'Invalid JSON'); lintStatus.className='status err'; }
+      }, 240);
+    }
+
+    // --- File I/O ---
+    el('filePick').addEventListener('change', async (e)=>{
+      const f = e.target.files?.[0]; if(!f) return;
+      const text = await f.text(); input.value = text; updateSize(); lint(); persist(); showToast('Loaded '+ (f.name||'file'));
+    });
+
+    // Drag & drop
+    ;['dragenter','dragover'].forEach(ev=>{
+      input.addEventListener(ev, e=>{ e.preventDefault(); input.style.outline='2px dashed var(--accent)'; });
+    });
+    ;['dragleave','drop'].forEach(ev=>{
+      input.addEventListener(ev, e=>{ e.preventDefault(); input.style.outline='none'; });
+    });
+    input.addEventListener('drop', async (e)=>{
+      const f = e.dataTransfer?.files?.[0]; if(!f) return;
+      const text = await f.text(); input.value = text; updateSize(); lint(); persist(); showToast('Dropped '+(f.name||'file'));
+    });
+
+    // --- Persistence ---
+    function persist(){ localStorage.setItem('json_in', input.value||''); localStorage.setItem('json_out', output.value||''); }
+    function restore(){ input.value = localStorage.getItem('json_in')||''; output.value = localStorage.getItem('json_out')||''; updateSize(); lint(); }
+    restore();
+
+    // --- Bindings ---
+    el('btnBeautify').addEventListener('click', beautify);
+    el('btnMinify').addEventListener('click', minify);
+    el('btnValidate').addEventListener('click', validate);
+    el('btnCopy').addEventListener('click', copyOut);
+    el('btnPaste').addEventListener('click', pasteIn);
+    el('btnDownload').addEventListener('click', download);
+    el('btnClear').addEventListener('click', clearAll);
+    input.addEventListener('input', ()=>{ updateSize(); lint(); persist(); });
+
+    // --- PWA (single-file service worker via Blob) ---
+    const swCode = `self.addEventListener('install', e=>{ self.skipWaiting(); });
+self.addEventListener('activate', e=>{ e.waitUntil(self.clients.claim()); });
+self.addEventListener('fetch', e=>{ e.respondWith(fetch(e.request).catch(()=>caches.match('offline'))); });`;
+
+    const swUrl = URL.createObjectURL(new Blob([swCode], {type:'text/javascript'}));
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.register(swUrl).catch(()=>{/*ignore*/});
+    }
+
+    // Basic install prompt (for supporting browsers)
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredPrompt = e; });
+    document.getElementById('installPWA').addEventListener('click', async (e)=>{
+      e.preventDefault(); if(!deferredPrompt){ return showToast('Install not supported here'); }
+      deferredPrompt.prompt(); const choice = await deferredPrompt.userChoice; if(choice.outcome==='accepted'){ showToast('App installed'); } else { showToast('Install dismissed'); }
+    });
+  </script>
+</body>
+</html>
